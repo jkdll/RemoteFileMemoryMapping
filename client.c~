@@ -86,15 +86,10 @@ int main(int argc, char *argv[])
 
     do{
 	printf("Enter your command: ");
-
 	fgets (str, 100, stdin);
-
 	printf("The Command you entered is :");
-
 	printf("%s",str);
-
 	printf("\n");
-
     }while(str[0] != ':' && str[1] != 'q');
 
     buf[numbytes] = '\0';
