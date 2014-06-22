@@ -1,4 +1,4 @@
-#include <mlib/my_sock.h>
+#include <my_sock.h>
 #include <errno.h>
     
 #define PORT 6969

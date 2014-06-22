@@ -1,0 +1,14 @@
+struct client_t{
+	int id; // thread id
+	int begin;
+	int end;
+}
+
+struct table_t{
+	ip_addr ip;	
+	client_t client;
+}
+
+main(){
+
+}
