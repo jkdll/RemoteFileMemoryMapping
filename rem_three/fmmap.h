@@ -41,36 +41,36 @@ void *rmmap(fileloc_t location, off_t offset){
 	if (s < 0)
 		error("ERROR opening socket");	
 
-	server = gethostbyname(location.ipaddress)
+	/*server = gethostbyname(location.ipaddress.s_addr);
 	if (server == NULL)
 	{
 		fprintf(stderr, "ERROR, host does not exist");
 		exit(0);
-	}
+	}*/
 	
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_addr.s_addr = htonl(location.ipaddress)
+	serv_addr.sin_addr.s_addr = htonl(location.ipaddress.s_addr);
 	serv_addr.sin_port = htons(location.port);
 	
 	if (bind(s,(struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
 		perror("bind");
-		close(serv_addr);
+		
 	}	
 
 	if(connect(s, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 		error("ERROR connecting");
 	
 	
-	int sent = write(s, location.pathname, sizeof(location.pathname)) 
+	int sent = write(s, location.pathname, sizeof(location.pathname)); 
 	if (sent <= 0)
 		error("ERROR writing to socket\n");
 	
-	nread = read(s, buf, sizeof(buf)))
+	int nread = read(s, buf, sizeof(buf));
 	
 	printf(buf);
 	
-	return buf;	
+	return NULL;	
 	/*
 	clilen = sizeof(cli_addr);
 	int done = 0;
