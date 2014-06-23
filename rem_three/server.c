@@ -26,15 +26,12 @@ struct client_t{
 #define msg_Wrt 2
 #define msg_Rd 2
 
-struct msg_t{
-	int type;
-}
 
 main(){
 
     signal(SIGCHLD, SIG_IGN);
     
-    client_t clientlist[];
+    struct client_t clientlist[50];
 
     // Declare variables
     int sockfd, newsockfd, portno, clilen;
@@ -53,7 +50,7 @@ main(){
 
     // Initialize socket structure
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    portno = 8080;  // Server port
+    portno = 3049;  // Server port
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY; // Accept connections from any address
     serv_addr.sin_port = htons(portno);
@@ -72,8 +69,8 @@ main(){
     char *data;
 
     key = ftok("/workspace/RemoteMemoryMapping/rem_three/server.c", 'A');
-    shmid = shmget(key, sizeof(client_t), 0644 | IPC_CREAT);
-    data = shmat(shmid, (void *)0, 0);
+    shmid = shmget(key, sizeof(clientlist), 0644 | IPC_CREAT);
+    data = shmat(shmid, clientlist, 0);
 
     listen(sockfd,5);
     while(1){
@@ -82,6 +79,7 @@ main(){
 	if(newsockfd == -1){ perror("#S [Parent Process]: Accept"); } 
 	else { printf("#S [Process %i]: New Client Accepted\n",getpid()); }
 	if(!fork()){
+		
 		printf("#S [Process %i]: Client Placed on New Process\n",getpid());
 		
 	}
