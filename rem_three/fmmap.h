@@ -29,8 +29,10 @@ typedef struct fileloc fileloc_t;
 // returns: Pointer to the mapped area. On error the value MAP_FAILED
 //          ((void*) -1) is returned and errno is set appropriately
 void *rmmap(fileloc_t location, off_t offset){	
-	int fd, pagesize, s, newsocket;
+	int fd, pagesize, s, r;
 	char *data;
+	socklen_t clilen;
+	char buf[1024];			
 			
 	struct hostent *server;
 	struct sockaddr_in serv_addr;	
@@ -48,38 +50,43 @@ void *rmmap(fileloc_t location, off_t offset){
 	
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	bcopy((char *)server->h_addr, 
-		(char *)&serv_addr.sin_addr.s)addr,
-		server->h)length);
+	serv_addr.sin_addr.s_addr = htonl(location.ipaddress)
 	serv_addr.sin_port = htons(location.port);
 	
+	if (bind(s,(struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
+		perror("bind");
+		close(serv_addr);
+	}	
+
 	if(connect(s, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
 		error("ERROR connecting");
 	
-	int sent = write(s, location.pathname, sizeof(location.pathname)) 
 	
+	int sent = write(s, location.pathname, sizeof(location.pathname)) 
 	if (sent <= 0)
 		error("ERROR writing to socket\n");
 	
+	nread = read(s, buf, sizeof(buf)))
 	
+	printf(buf);
 	
-	listen(s,2);
-	
-	socklen_t clilen;
-	sizeof(cli_addr);
+	return buf;	
+	/*
+	clilen = sizeof(cli_addr);
 	int done = 0;
 	while(!done){
 		printf("waiting for response");
-		newsocket = accept(s, (struct sockaddr *) &cli_addr, &clilen);
+		r = accept(s, (struct sockaddr *) &cli_addr, &clilen);
 	}
 	
-
+	
+	
 
 	fd = open(location.pathname, O_RDONLY);
 	
 	pagesize = getpagesize();
 	
-	return data = mmap((caddr_t)0, pagesize, PROT_READ,MAP_SHARED, fd,offset);	
+	return data = mmap((caddr_t)0, pagesize, PROT_READ,MAP_SHARED, fd,offset);*/	
 }
 
 // Deletes mapping for the specified address range
