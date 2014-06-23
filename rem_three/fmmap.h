@@ -33,34 +33,37 @@ void *rmmap(fileloc_t location, off_t offset){
 	char *data;
 	socklen_t clilen;
 	char buf[1024];			
-			
+	printf("hola");
 	struct hostent *server;
 	struct sockaddr_in serv_addr;	
 
 	s = socket(AF_INET, SOCK_STREAM, 0);
 	if (s < 0)
-		error("ERROR opening socket");	
-
-	/*server = gethostbyname(location.ipaddress.s_addr);
+		perror("socket");	
+	const char * addr = (char*)location.ipaddress.s_addr;
+	server =(struct hostent *) gethostbyaddr(addr, sizeof(struct in_addr), AF_INET);
 	if (server == NULL)
 	{
 		fprintf(stderr, "ERROR, host does not exist");
 		exit(0);
-	}*/
+	}
 	
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl(location.ipaddress.s_addr);
 	serv_addr.sin_port = htons(location.port);
-	
+	printf("trying to bind");
 	if (bind(s,(struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
 		perror("bind");
-		
+		exit(1);
 	}	
 
 	if(connect(s, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+	{
 		error("ERROR connecting");
-	
+		exit(1);
+	}
+
 	
 	int sent = write(s, location.pathname, sizeof(location.pathname)); 
 	if (sent <= 0)
