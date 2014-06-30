@@ -29,6 +29,10 @@ typedef struct fileloc fileloc_t;
 // returns: Pointer to the mapped area. On error the value MAP_FAILED
 //          ((void*) -1) is returned and errno is set appropriately
 void *rmmap(fileloc_t location, off_t offset){	
+	//printf((char*)location.ipaddress.s_addr);
+	
+	printf("Struct receive: %d %s %s \n", location.port, location.ipaddress, location.pathname);
+	
 	int fd, pagesize, s, r;
 	char *data;
 	socklen_t clilen;
@@ -36,23 +40,28 @@ void *rmmap(fileloc_t location, off_t offset){
 	printf("hola");
 	struct hostent *server;
 	struct sockaddr_in serv_addr;	
-
+	
+	
 	s = socket(AF_INET, SOCK_STREAM, 0);
 	if (s < 0)
-		perror("socket");	
+		perror("socket");
+		
 	const char * addr = (char*)location.ipaddress.s_addr;
-	server =(struct hostent *) gethostbyaddr(addr, sizeof(struct in_addr), AF_INET);
-	if (server == NULL)
-	{
-		fprintf(stderr, "ERROR, host does not exist");
-		exit(0);
-	}
+	//server =(struct hostent *) gethostbyaddr(addr, sizeof(struct in_addr), AF_INET);
+	//if (server == NULL)
+	//{
+	//	fprintf(stderr, "ERROR, host does not exist");
+	//	exit(0);
+	//}
+	
+	close(s);
 	
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl(location.ipaddress.s_addr);
 	serv_addr.sin_port = htons(location.port);
 	printf("trying to bind");
+	
 	if (bind(s,(struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
 		perror("bind");
 		exit(1);
