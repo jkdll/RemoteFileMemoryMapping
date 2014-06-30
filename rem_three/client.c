@@ -28,7 +28,7 @@ main(){
 			printf("Client: Enter Server <ip>:<port>: \n");
 			fgets (str, 100, stdin);
 			ip = "127.0.0.1"; 
-			port = 3048; 
+			port = 3050; 
 			
 			printf("Client: IP ADDRESS:");
 			printf("%s ",ip);

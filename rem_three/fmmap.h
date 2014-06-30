@@ -25,80 +25,54 @@ typedef struct fileloc fileloc_t;
 // of the calling process         
 // location: Remote file to be memory mapped
 // offset:   File offset to memory map (from beginning of file)
-//
+//y
 // returns: Pointer to the mapped area. On error the value MAP_FAILED
 //          ((void*) -1) is returned and errno is set appropriately
 void *rmmap(fileloc_t location, off_t offset){	
-	//printf((char*)location.ipaddress.s_addr);
+	printf("\nStruct receive: %d %s %s \n", location.port, location.ipaddress, location.pathname);
 	
-	printf("Struct receive: %d %s %s \n", location.port, location.ipaddress, location.pathname);
+	int s, t, len;
+	struct sockaddr_in remote;
+	char * str =(char *) malloc (sizeof(char)) ;
 	
-	int fd, pagesize, s, r;
-	char *data;
-	socklen_t clilen;
-	char buf[1024];			
-	printf("hola");
-	struct hostent *server;
-	struct sockaddr_in serv_addr;	
-	
-	
-	s = socket(AF_INET, SOCK_STREAM, 0);
-	if (s < 0)
+	if ((s = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("socket");
-		
-	const char * addr = (char*)location.ipaddress.s_addr;
-	//server =(struct hostent *) gethostbyaddr(addr, sizeof(struct in_addr), AF_INET);
-	//if (server == NULL)
-	//{
-	//	fprintf(stderr, "ERROR, host does not exist");
-	//	exit(0);
-	//}
-	
-	close(s);
-	
-	bzero((char *) &serv_addr, sizeof(serv_addr));
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_addr.s_addr = htonl(location.ipaddress.s_addr);
-	serv_addr.sin_port = htons(location.port);
-	printf("trying to bind");
-	
-	if (bind(s,(struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
-		perror("bind");
 		exit(1);
+	}
+	
+	bzero(&remote,sizeof(remote));
+	remote.sin_family = AF_INET;
+	remote.sin_port = htons(3050);
+	remote.sin_addr.s_addr = inet_addr("127.0.0.1");
+	
+	int result;
+	
+	result  = connect(s, (struct sockaddr *)&remote, sizeof(remote));
+	if (result == 0) {
+		printf("\n *****\nConnected \n *****\n");
+	} else {
+		//perror("connect");
+		printf("%d",errno);
 	}	
-
-	if(connect(s, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
-	{
-		error("ERROR connecting");
+	
+	printf("Result %d \n", result);
+	
+	if (send(s, location.pathname, sizeof(location.pathname), 0) == -1) {
+		perror("send");
+	} else {
+	printf("sent %d", send);
+	
+	}
+	printf("Waiting for receive\n");
+	if ((t = recv(s, str, 100, 0)) > 0) {
+		str[t] = '\0';
+		printf("received\n");
+		return (char*)str;
+	} else {
+		if (t< 0) perror("recv");
+		else printf("Server closed connection\n");
 		exit(1);
 	}
-
-	
-	int sent = write(s, location.pathname, sizeof(location.pathname)); 
-	if (sent <= 0)
-		error("ERROR writing to socket\n");
-	
-	int nread = read(s, buf, sizeof(buf));
-	
-	printf(buf);
-	
-	return NULL;	
-	/*
-	clilen = sizeof(cli_addr);
-	int done = 0;
-	while(!done){
-		printf("waiting for response");
-		r = accept(s, (struct sockaddr *) &cli_addr, &clilen);
-	}
-	
-	
-	
-
-	fd = open(location.pathname, O_RDONLY);
-	
-	pagesize = getpagesize();
-	
-	return data = mmap((caddr_t)0, pagesize, PROT_READ,MAP_SHARED, fd,offset);*/	
 }
 
 // Deletes mapping for the specified address range
@@ -112,7 +86,7 @@ int rmunmap(void *addr){
 
 // Attempt to read up to count bytes from memory mapped area pointed
 // to by addr + offset into buff
-//
+// addr: page read from rmap
 // returns: Number of bytes read from memory mapped area
 ssize_t mread(void *addr, off_t offset, void *buff, size_t count);
 
